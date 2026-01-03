@@ -114,4 +114,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Waitlist Form Submission
+    if (waitlistForm) {
+        const formElement = waitlistForm.querySelector('form');
+        if (formElement) {
+            formElement.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const submitBtn = formElement.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.textContent;
+
+                // Loading state
+                submitBtn.textContent = 'Joining...';
+                submitBtn.disabled = true;
+
+                const formData = new FormData(formElement);
+                const data = {
+                    name: formData.get('name'),
+                    email: formData.get('email')
+                };
+
+                try {
+                    const response = await fetch('https://sourabhnihore98.app.n8n.cloud/webhook/8898eb4a-e879-4f13-b450-c061c8029289', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        // Success state
+                        submitBtn.textContent = 'Joined!';
+                        submitBtn.style.backgroundColor = 'var(--color-secondary)';
+                        formElement.reset();
+
+                        setTimeout(() => {
+                            submitBtn.textContent = originalBtnText;
+                            submitBtn.style.backgroundColor = '';
+                            submitBtn.disabled = false;
+                        }, 3000);
+                    } else {
+                        throw new Error('Network response was not ok');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    submitBtn.textContent = 'Error. Try again.';
+                    submitBtn.style.backgroundColor = '#ef4444'; // Red for error
+
+                    setTimeout(() => {
+                        submitBtn.textContent = originalBtnText;
+                        submitBtn.style.backgroundColor = '';
+                        submitBtn.disabled = false;
+                    }, 3000);
+                }
+            });
+        }
+    }
+
 });
